@@ -1,0 +1,61 @@
+﻿@model ProyectoDS1.Models.Usuario
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Usuario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+           <!-- <div class="form-group">
+                <label asp-for="idUsuario"  class="control-label"></label>
+                <input asp-for="idUsuario"  class="form-control" />
+                <span asp-validation-for="idUsuario" class="text-danger"></span>
+            </div> -->
+            <div class="form-group">
+                <label asp-for="nombreUsuario" class="control-label"></label>
+                <input asp-for="nombreUsuario" class="form-control" />
+                <span asp-validation-for="nombreUsuario" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="email" class="control-label"></label>
+                <input asp-for="email" class="form-control" />
+                <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="contrasena" class="control-label"></label>
+                <input asp-for="contrasena" class="form-control" />
+                <span asp-validation-for="contrasena" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="idRol" class="control-label"></label>
+                <select asp-for="idRol" asp-items="@(ViewBag.rol)" class="form-control">
+                    <option value="">-- Seleccione rol --</option>
+                </select>
+                <span asp-validation-for="idRol" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Activo" />
+                    @Html.DisplayNameFor(model => model.Activo)
+                    </label>
+            <div class="form-group d-flex gap-2">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <a asp-action="ListUsuario" class="btn btn-outline-primary">Retornar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    @ViewBag.mensaje
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
