@@ -71,9 +71,8 @@ namespace ProyectoDS1.Controllers
         }
 
         // Insertar usuario
-        private async Task<string> NuevoUsuario(Usuario reg)
+        private async Task<(bool exito, string mensaje)> NuevoUsuario(Usuario reg)
         {
-            string mensaje = "";
             using (SqlConnection cn = new SqlConnection(_config["ConnectionStrings:sql"]))
             {
                 try
@@ -90,14 +89,20 @@ namespace ProyectoDS1.Controllers
                     cmd.Parameters.AddWithValue("@Activo", reg.Activo);
 
                     await cn.OpenAsync();
-                    int i = await cmd.ExecuteNonQueryAsync();
-                    mensaje = $"Se ha insertado el usuario {reg.nombreUsuario}";
+                    await cmd.ExecuteNonQueryAsync();
+                    return (true, $"Se ha insertado el usuario {reg.nombreUsuario}");
                 }
-                catch (SqlException ex) { mensaje = ex.Message; }
-                finally { await cn.CloseAsync(); }
+                catch (SqlException ex)
+                {
+                    return (false, ex.Message);
+                }
+                finally
+                {
+                    await cn.CloseAsync();
+                }
             }
-            return mensaje;
         }
+
 
         // Buscar usuario por id
         private async Task<Usuario?> buscar(int id)
@@ -107,9 +112,8 @@ namespace ProyectoDS1.Controllers
         }
 
         // Editar usuario
-        private async Task<string> EditarUsuario(Usuario reg)
+        private async Task<(bool exito, string mensaje)> EditarUsuario(Usuario reg)
         {
-            string mensaje = "";
             using (SqlConnection cn = new SqlConnection(_config["ConnectionStrings:sql"]))
             {
                 try
@@ -127,13 +131,18 @@ namespace ProyectoDS1.Controllers
                     cmd.Parameters.AddWithValue("@Activo", reg.Activo);
 
                     await cn.OpenAsync();
-                    int i = await cmd.ExecuteNonQueryAsync();
-                    mensaje = $"Se ha actualizado el usuario {reg.nombreUsuario}";
+                    await cmd.ExecuteNonQueryAsync();
+                    return (true, $"Se ha actualizado el usuario {reg.nombreUsuario}");
                 }
-                catch (SqlException ex) { mensaje = ex.Message; }
-                finally { await cn.CloseAsync(); }
+                catch (SqlException ex)
+                {
+                    return (false, ex.Message);
+                }
+                finally
+                {
+                    await cn.CloseAsync();
+                }
             }
-            return mensaje;
         }
 
 
@@ -157,17 +166,29 @@ namespace ProyectoDS1.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Usuario reg)
         {
-            
             if (!ModelState.IsValid)
             {
                 var roles = await listarRol();
                 ViewBag.rol = new SelectList(roles, "idRol", "nombreRol", reg.idRol);
                 return View(reg);
             }
-            
-            ViewBag.mensaje = await NuevoUsuario(reg);
-            return View(new Usuario());
+
+            var (exito, mensaje) = await NuevoUsuario(reg);
+
+            if (exito)
+            {
+                TempData["Success"] = mensaje;
+                return RedirectToAction("ListUsuario");
+            }
+            else
+            {
+                TempData["Error"] = mensaje;
+                var roles = await listarRol();
+                ViewBag.rol = new SelectList(roles, "idRol", "nombreRol", reg.idRol);
+                return View(reg);
+            }
         }
+
 
         // GET: Edit
         [HttpGet]
@@ -197,8 +218,20 @@ namespace ProyectoDS1.Controllers
                 return View(reg);
             }
 
-            ViewBag.mensaje = await EditarUsuario(reg);
-            return View(new Usuario());
+            var (exito, mensaje) = await EditarUsuario(reg);
+
+            if (exito)
+            {
+                TempData["Success"] = mensaje;
+                return RedirectToAction("ListUsuario");
+            }
+            else
+            {
+                TempData["Error"] = mensaje;
+                var roles = await listarRol();
+                ViewBag.rol = new SelectList(roles, "idRol", "nombreRol", reg.idRol);
+                return View(reg);
+            }
         }
 
         // GET: Details
@@ -215,26 +248,12 @@ namespace ProyectoDS1.Controllers
             return View(usuario);
         }
 
-        // GET: Delete (confirmación)
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? id = null)
-        {
-            if (id == null)
-                return RedirectToAction(nameof(ListUsuario));
-
-            var usuario = await buscar(id.Value);
-            if (usuario == null)
-                return NotFound();
-
-            return View(usuario);
-        }
-
-        // POST: Delete (ejecuta eliminación)
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            bool exito = false;
             string mensaje = "";
+
             using (SqlConnection cn = new SqlConnection(_config["ConnectionStrings:sql"]))
             {
                 try
@@ -244,15 +263,21 @@ namespace ProyectoDS1.Controllers
                     cmd.Parameters.AddWithValue("@IdUsuario", id);
 
                     await cn.OpenAsync();
-                    int i = await cmd.ExecuteNonQueryAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                    exito = true;
                     mensaje = $"Se ha eliminado el usuario con Id {id}";
                 }
-                catch (SqlException ex) { mensaje = ex.Message; }
-                finally { await cn.CloseAsync(); }
+                catch (SqlException ex)
+                {
+                    mensaje = ex.Message;
+                }
+                finally
+                {
+                    await cn.CloseAsync();
+                }
             }
 
-            TempData["mensaje"] = mensaje;
-            return RedirectToAction(nameof(ListUsuario));
+            return Json(new { exito, mensaje });
         }
     }
 }

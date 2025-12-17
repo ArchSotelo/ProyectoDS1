@@ -6,19 +6,37 @@ namespace ProyectoDS1.Models
     {
         [Key]public int idUsuario {  get; set; }
 
-        [Required, Display(Name = "Codigo")] public string codigoUsuario { get; set; }
+        [Display(Name = "Codigo")]
+        [Required(ErrorMessage = "El código es obligatorio")]
+        public string codigoUsuario { get; set; }
 
-        [Required, Display(Name = "Nombre")]public string nombreUsuario { get; set; }
+        [Display(Name = "Nombre")]
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        [StringLength(50, ErrorMessage = "Máximo 50 caracteres")]
+        public string nombreUsuario { get; set; }
 
-        [Required, Display(Name = "Apellido")] public string apellidoUsuario { get; set; }
+        [Display(Name = "Apellido")]
+        [Required(ErrorMessage = "El apellido es obligatorio")]
+        public string apellidoUsuario { get; set; }
 
-        [Required, Display(Name = "Email")] public string email {  get; set; }
+        [Display(Name = "Email")]
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de correo inválido")] 
+        public string email {  get; set; }
 
-        [Required, Display(Name = "Telefono")] public string telefono { get; set; }
+        [Display(Name = "Telefono")]
+        [Required(ErrorMessage = "El telefono es obligatorio")]
+        [Phone(ErrorMessage = "Formato de teléfono inválido")]
+        public string telefono { get; set; }
 
-        [Required, Display(Name = "Contraseña")] public string contrasena { get; set; }
+        [Display(Name = "Contraseña")]
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(20, MinimumLength = 6, ErrorMessage = "Debe tener entre 6 y 20 caracteres")] 
+        public string contrasena { get; set; }
 
-        [Required, Display(Name = "Rol")] public int idRol { get; set; }
+        [Display(Name = "Rol")]
+        [Required(ErrorMessage = "Debe seleccionar un rol")] 
+        public int idRol { get; set; }
 
         public string nombreRol { get; set; }
 
@@ -34,6 +52,7 @@ namespace ProyectoDS1.Models
             telefono = "";
             contrasena = "";
             nombreRol = "";
+            Activo = true;
         }
 
         public string estadoUsuario(){

@@ -1,75 +1,201 @@
 ﻿@model IEnumerable<ProyectoDS1.Models.Usuario>
 
 @{
-    ViewData["Title"] = "ListUsuario";
+    ViewData["Title"] = "Usuarios";
 }
 
-<h1>Usuarios</h1>
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-people-fill"></i> Gestión de Usuarios
+        </h5>
+        <a asp-action="Create" class="btn btn-light btn-sm">
+            <i class="bi bi-plus-circle"></i> Nuevo Usuario
+        </a>
+    </div>
+    <br />
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="text"
+                   id="buscarNombre"
+                   class="form-control"
+                   placeholder="🔍 Buscar por nombre..." />
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tablaUsuarios">
+                <thead class="table-light">
+                    <tr class="text-center">
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.codigoUsuario</td>
+                            <td>@item.nombreCompleto()</td>
+                            <td>@item.email</td>
+                            <td>@item.telefono</td>
+                            <td>
+                                <span class="badge bg-info text-dark">
+                                    @item.nombreRol
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.Activo)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactivo</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.idUsuario"
+                                   class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.idUsuario"
+                                   class="btn btn-outline-success btn-sm" title="Editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <button class="btn btn-outline-danger btn-sm btn-eliminar"
+                                        data-id="@item.idUsuario" data-nombre="@item.nombreCompleto()">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Crear Usuario</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.codigoUsuario)
-            </th>
-            <th>
-                Nombre
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.telefono)
-            </th>
-            <th>
-                Rol
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Activo)
-            </th>
-            <th>
-                Acciones
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Inicializar DataTable
+            var table = $('#tablaUsuarios').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [5, 10, 25, 50],
+                dom:
+                    "<'row mb-2'<'col-sm-6'l><'col-sm-6 text-end'B>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>",
+                buttons: [
+                    { extend: 'excel', className: 'btn btn-success btn-sm' },
+                    { extend: 'pdf', className: 'btn btn-danger btn-sm' },
+                    { extend: 'print', className: 'btn btn-secondary btn-sm' }
+                ],
+                columnDefs: [
+                    { orderable: false, targets: 6 }
+                ]
+            });
+
+            // Buscador por nombre
+            $('#buscarNombre').on('keyup', function () {
+                table.column(1).search(this.value).draw();
+            });
+
+            // SweetAlert mensajes desde TempData
+        @if (TempData["Success"] != null)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.codigoUsuario)
-                </td>
-                <td>
-                    @item.nombreCompleto()
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.telefono)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.nombreRol)
-                </td>
-                <td>
-                    @item.estadoUsuario()
-                </td>
-                <!-- 3 ACCIONES
-                    <td>
-                @Html.ActionLink("Editar", "Edit", new { id = item.idUsuario }, new { @class = "btn btn-success" }) |
-                @Html.ActionLink("Ver", "Details", new { id = item.idUsuario }, new { @class = "btn btn-warning" }) |
-                @Html.ActionLink("Eliminar", "Delete", new { id = item.idUsuario }, new { @class = "btn btn-danger" })
-                </td>
-
-                -->
-                <td>
-                    @Html.ActionLink("Ver", "Details", new { id = item.idUsuario }, new { @class = "btn btn-warning" }) 
-                </td>
-            </tr>
+            <text>
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: '@TempData["Success"]',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+            </text>
         }
-    </tbody>
-</table>
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: '@TempData["Error"]'
+                    });
+            </text>
+        }
+
+                // Botón eliminar con SweetAlert + AJAX
+                $('#tablaUsuarios').on('click', '.btn-eliminar', function () {
+                    var id = $(this).data('id');
+                    var nombre = $(this).data('nombre');
+
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: `Eliminar al usuario: ${nombre}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                            $.ajax({
+                                url: '@Url.Action("DeleteConfirmed", "Usuarios")',
+                                type: 'POST',
+                                data: { id: id },
+                                success: function (response) {
+                                    if (response.exito) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: '¡Eliminado!',
+                                            text: response.mensaje,
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+
+                                        // Eliminar fila de DataTable
+                                        var row = $('#tablaUsuarios').find(`button[data-id='${id}']`).closest('tr');
+                                        table.row(row).remove().draw();
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error',
+                                            text: response.mensaje
+                                        });
+                                    }
+                                },
+                                error: function () {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'No se pudo procesar la solicitud'
+                                    });
+                                }
+                            });
+
+                        }
+                    });
+                });
+
+        });
+    </script>
+}
+
+
+
 

@@ -1,66 +1,48 @@
 ﻿@model ProyectoDS1.Models.Usuario
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle Usuario";
 }
 
-<h1>Detalles Usuarios</h1>
-
-<div>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.codigoUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.codigoUsuario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.nombreUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.nombreUsuario)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.apellidoUsuario)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.apellidoUsuario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.email)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.telefono)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.telefono)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.contrasena)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.contrasena)
-        </dd>
-        <dt class = "col-sm-2">
-            Rol
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.nombreRol)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Activo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Model.estadoUsuario()
-        </dd>
-    </dl>
-</div>
-<div>
-    @Html.ActionLink("Editar Usuario", "Edit", new { id = Model.idUsuario }, new { @class = "btn btn-success" }) |
-    <a asp-action="ListUsuario" class="btn btn-outline-primary">Retornar</a> |
-    @Html.ActionLink("Eliminar", "Delete", new { id = Model.idUsuario }, new { @class = "btn btn-danger" })
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Detalle del Usuario</h5>
+        <a asp-action="ListUsuario" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>@Html.DisplayNameFor(m => m.codigoUsuario):</strong> @Html.DisplayFor(m => m.codigoUsuario)</p>
+                <p><strong>@Html.DisplayNameFor(m => m.nombreUsuario):</strong> @Html.DisplayFor(m => m.nombreUsuario)</p>
+                <p><strong>@Html.DisplayNameFor(m => m.apellidoUsuario):</strong> @Html.DisplayFor(m => m.apellidoUsuario)</p>
+                <p><strong>@Html.DisplayNameFor(m => m.email):</strong> @Html.DisplayFor(m => m.email)</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>@Html.DisplayNameFor(m => m.telefono):</strong> @Html.DisplayFor(m => m.telefono)</p>
+                <p><strong>@Html.DisplayNameFor(m => m.contrasena):</strong> @Html.DisplayFor(m => m.contrasena)</p>
+                <p><strong>Rol:</strong> <span class="badge bg-info text-dark">@Html.DisplayFor(m => m.nombreRol)</span></p>
+                <p>
+                    <strong>@Html.DisplayNameFor(m => m.Activo):</strong>
+                    @if (Model.Activo)
+                    {
+                        <span class="badge bg-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactivo</span>
+                    }
+                </p>
+            </div>
+        </div>
+        <div class="mt-3">
+            <a asp-action="Edit" asp-route-id="@Model.idUsuario" class="btn btn-success me-2">
+                <i class="bi bi-pencil-square"></i> Editar Usuario
+            </a>
+            <a asp-action="ListUsuario" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left-circle"></i> Retornar
+            </a>
+        </div>
+    </div>
 </div>
