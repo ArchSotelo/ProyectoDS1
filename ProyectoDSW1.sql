@@ -51,12 +51,15 @@ GO
 -- ======================================================
 CREATE TABLE tb_Usuarios (
     IdUsuario INT IDENTITY(1,1) PRIMARY KEY,
+    CodigoUsuario CHAR(5) NOT NULL,
     Nombre NVARCHAR(100) NOT NULL,
+    Apellido NVARCHAR(100) NOT NULL,
     Email NVARCHAR(150) UNIQUE NOT NULL,
+    Telefono CHAR(9) NOT NULL,
     ContrasenaHash NVARCHAR(255) NOT NULL,
     IdRol INT NOT NULL,    
-    Activo BIT NOT NULL DEFAULT 1
-
+    FechaCreacion DATETIME NOT NULL DEFAULT GETDATE(),
+    Activo BIT NOT NULL DEFAULT 1,
     FOREIGN KEY (IdRol) REFERENCES tb_Rol(IdRol)
 );
 GO
@@ -146,7 +149,7 @@ INSERT INTO tb_Categorias (Nombre) VALUES
 INSERT INTO tb_Rol (Nombre) VALUES 
 ('Administrador'),  ('Tecnico'), ('Usuario') 
 
-SELECT * FROM Rol
+--SELECT * FROM Rol
 
 -- SLA por prioridad
 INSERT INTO tb_SlaPrioridad (IdPrioridad, HorasLimite) VALUES
@@ -166,7 +169,15 @@ SELECT * FROM tb_Usuarios
 CREATE OR ALTER PROC usp_ListarUsuario
 AS
 BEGIN
-    SELECT u.IdUsuario, u.Nombre, u.Email, u.ContrasenaHash ,r.Nombre, u.Activo
+    SELECT u.IdUsuario, 
+           u.CodigoUsuario, 
+           u.Nombre, 
+           u.Apellido,
+           u.Email, 
+           u.Telefono, 
+           u.ContrasenaHash, 
+           r.IdRol, 
+           u.Activo
     FROM tb_Usuarios u INNER JOIN tb_Rol r  ON u.IdRol = r.IdRol
     ORDER BY u.IdUsuario DESC
 END
@@ -187,8 +198,11 @@ EXEC usp_ListarRol
 
 --Inserta Nuevo Usuario
 CREATE OR ALTER PROC  usp_InsertarUsuario
+    @Codigo CHAR(5),
     @Nombre NVARCHAR(100),
+    @Apellido NVARCHAR(100),
     @Email NVARCHAR(150),
+    @Telefono CHAR(9),
     @Contrasena NVARCHAR(255),
     @Rol INT,
     @Activo BIT = 1
@@ -196,24 +210,29 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO tb_Usuarios(Nombre, Email, ContrasenaHash,IdRol, Activo)
-    VALUES(@Nombre, @Email, @Contrasena, @Rol, @Activo);
-
+    INSERT INTO tb_Usuarios(CodigoUsuario, Nombre, Apellido, Email, Telefono, ContrasenaHash,IdRol, Activo)
+    VALUES(@Codigo, @Nombre, @Apellido, @Email, @Telefono, @Contrasena, @Rol, @Activo);
     SELECT SCOPE_IDENTITY() AS NuevoIdUsuario;
 END
 GO
 
 EXEC usp_InsertarUsuario 
-    @Nombre = 'Juan Pérez',
+    @Codigo = 'JP001',
+    @Nombre = 'Juan',
+    @Apellido = 'Perez',
     @Email = 'juan.perez@email.com',
+    @Telefono = '987265447',
     @Contrasena= 'hashSeguro123',
     @Rol = 2;
     
 --Editar Usuario
 CREATE OR ALTER PROC usp_EditarUsuario
     @IdUsuario INT,
+    @Codigo CHAR(5),
     @Nombre NVARCHAR(100),
+    @Apellido NVARCHAR(100),
     @Email NVARCHAR(150),
+    @Telefono CHAR(9),
     @Contrasena NVARCHAR(255),
     @Rol INT,
     @Activo BIT
@@ -222,14 +241,25 @@ BEGIN
     SET NOCOUNT ON;
 
     UPDATE tb_Usuarios
-    SET Nombre = @Nombre,
+    SET CodigoUsuario = @Codigo,
+        Nombre = @Nombre,
+        Apellido = @Apellido,
         Email = @Email,
+        Telefono = @Telefono,
         ContrasenaHash = @Contrasena,
         IdRol = @Rol,
         Activo = @Activo
     WHERE IdUsuario = @IdUsuario;
 END
 GO
+
+EXEC usp_EditarUsuario 
+    @IdUsuario = 8,
+    @Nombre = 'Juan Pérez',
+    @Email = 'juan.perez@email.com',
+    @Contrasena= 'hashSeguro123',
+    @Rol = 2,
+    @Activo = 0;
 
 --Eliminar Usuario
 CREATE OR ALTER PROC usp_EliminarUsuario

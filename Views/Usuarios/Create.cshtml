@@ -4,9 +4,8 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Nuevo Usuario</h1>
 
-<h4>Usuario</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -16,15 +15,33 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
+                <label asp-for="codigoUsuario" class="control-label"></label>
+                <input asp-for="codigoUsuario" class="form-control" />
+                <span asp-validation-for="codigoUsuario" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="nombreUsuario" class="control-label"></label>
                 <input asp-for="nombreUsuario" class="form-control" />
                 <span asp-validation-for="nombreUsuario" class="text-danger"></span>
             </div>
 
             <div class="form-group">
+                <label asp-for="apellidoUsuario" class="control-label"></label>
+                <input asp-for="apellidoUsuario" class="form-control" />
+                <span asp-validation-for="apellidoUsuario" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="email" class="control-label"></label>
                 <input asp-for="email" class="form-control" />
                 <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="telefono" class="control-label"></label>
+                <input asp-for="telefono" class="form-control" />
+                <span asp-validation-for="telefono" class="text-danger"></span>
             </div>
 
             <div class="form-group">

@@ -4,17 +4,16 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Detalles Usuarios</h1>
 
 <div>
-    <h4>Usuario</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.idUsuario)
+            @Html.DisplayNameFor(model => model.codigoUsuario)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.idUsuario)
+            @Html.DisplayFor(model => model.codigoUsuario)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.nombreUsuario)
@@ -22,11 +21,23 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.nombreUsuario)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.apellidoUsuario)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.apellidoUsuario)
+        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.email)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.email)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.telefono)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.telefono)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.contrasena)
@@ -44,11 +55,12 @@
             @Html.DisplayNameFor(model => model.Activo)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Activo)
+            @Model.estadoUsuario()
         </dd>
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new {  id = Model.idUsuario }) |
-    <a asp-action="ListUsuario">Back to List</a>
+    @Html.ActionLink("Editar Usuario", "Edit", new { id = Model.idUsuario }, new { @class = "btn btn-success" }) |
+    <a asp-action="ListUsuario" class="btn btn-outline-primary">Retornar</a> |
+    @Html.ActionLink("Eliminar", "Delete", new { id = Model.idUsuario }, new { @class = "btn btn-danger" })
 </div>

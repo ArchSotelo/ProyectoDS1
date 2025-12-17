@@ -4,6 +4,6 @@
     {
         public int idRol { get; set; }
 
-        public string nombreRol { get; set; }
+        public string ? nombreRol { get; set; }
     }
 }

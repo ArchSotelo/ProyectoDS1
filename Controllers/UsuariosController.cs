@@ -31,11 +31,15 @@ namespace ProyectoDS1.Controllers
                         temporal.Add(new Usuario()
                         {
                             idUsuario = dr.GetInt32(0),
-                            nombreUsuario = dr.GetString(1),
-                            email = dr.GetString(2),
-                            contrasena = dr.GetString(3),
-                            nombreRol = dr.GetString(4),
-                            Activo = dr.GetBoolean(5)
+                            codigoUsuario = dr.GetString(1),
+                            nombreUsuario = dr.GetString(2),
+                            apellidoUsuario = dr.GetString(3),
+                            email = dr.GetString(4),
+                            telefono = dr.GetString(5),
+                            contrasena = dr.GetString(6),
+                            idRol = dr.GetInt32(7),
+                            nombreRol = dr.GetString(8),
+                            Activo = dr.GetBoolean(9)
                         });
                     }
                 }
@@ -76,8 +80,11 @@ namespace ProyectoDS1.Controllers
                 {
                     SqlCommand cmd = new SqlCommand("usp_InsertarUsuario", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Codigo", reg.codigoUsuario);
                     cmd.Parameters.AddWithValue("@Nombre", reg.nombreUsuario);
+                    cmd.Parameters.AddWithValue("@Apellido", reg.apellidoUsuario);
                     cmd.Parameters.AddWithValue("@Email", reg.email);
+                    cmd.Parameters.AddWithValue("@Telefono", reg.telefono);
                     cmd.Parameters.AddWithValue("@Contrasena", reg.contrasena);
                     cmd.Parameters.AddWithValue("@Rol", reg.idRol);
                     cmd.Parameters.AddWithValue("@Activo", reg.Activo);
@@ -110,8 +117,11 @@ namespace ProyectoDS1.Controllers
                     SqlCommand cmd = new SqlCommand("usp_EditarUsuario", cn);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@IdUsuario", reg.idUsuario);
+                    cmd.Parameters.AddWithValue("@Codigo", reg.codigoUsuario);
                     cmd.Parameters.AddWithValue("@Nombre", reg.nombreUsuario);
+                    cmd.Parameters.AddWithValue("@Apellido", reg.apellidoUsuario);
                     cmd.Parameters.AddWithValue("@Email", reg.email);
+                    cmd.Parameters.AddWithValue("@Telefono", reg.telefono);
                     cmd.Parameters.AddWithValue("@Contrasena", reg.contrasena);
                     cmd.Parameters.AddWithValue("@Rol", reg.idRol);
                     cmd.Parameters.AddWithValue("@Activo", reg.Activo);
@@ -188,7 +198,7 @@ namespace ProyectoDS1.Controllers
             }
 
             ViewBag.mensaje = await EditarUsuario(reg);
-            return RedirectToAction(nameof(ListUsuario));
+            return View(new Usuario());
         }
 
         // GET: Details

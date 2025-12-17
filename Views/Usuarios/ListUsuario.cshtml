@@ -7,19 +7,22 @@
 <h1>Usuarios</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Crear Usuario</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.idUsuario)
+                @Html.DisplayNameFor(model => model.codigoUsuario)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.nombreUsuario)
+                Nombre
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.telefono)
             </th>
             <th>
                 Rol
@@ -27,34 +30,46 @@
             <th>
                 @Html.DisplayNameFor(model => model.Activo)
             </th>
-            <th></th>
+            <th>
+                Acciones
+            </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.idUsuario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.nombreUsuario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.nombreRol)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Activo)
-            </td>
+        @foreach (var item in Model)
+        {
+            <tr>
                 <td>
-                    @Html.ActionLink("Editar", "Edit", new { id = item.idUsuario }, new { @class = "btn btn-success" }) |
-                    @Html.ActionLink("Ver", "Details", new { id=item.idUsuario}, new { @class = "btn btn-warning" }) |
-                    @Html.ActionLink("Eliminar", "Delete", new {  id=item.idUsuario }, new { @class = "btn btn-danger" })
+                    @Html.DisplayFor(modelItem => item.codigoUsuario)
                 </td>
-        </tr>
-}
+                <td>
+                    @item.nombreCompleto()
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.telefono)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.nombreRol)
+                </td>
+                <td>
+                    @item.estadoUsuario()
+                </td>
+                <!-- 3 ACCIONES
+                    <td>
+                @Html.ActionLink("Editar", "Edit", new { id = item.idUsuario }, new { @class = "btn btn-success" }) |
+                @Html.ActionLink("Ver", "Details", new { id = item.idUsuario }, new { @class = "btn btn-warning" }) |
+                @Html.ActionLink("Eliminar", "Delete", new { id = item.idUsuario }, new { @class = "btn btn-danger" })
+                </td>
+
+                -->
+                <td>
+                    @Html.ActionLink("Ver", "Details", new { id = item.idUsuario }, new { @class = "btn btn-warning" }) 
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
