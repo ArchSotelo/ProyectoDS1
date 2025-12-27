@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProyectoDS1</title>
+    <title>@ViewData["Title"] - HELPDESK-MC</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -19,38 +19,73 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ProyectoDS1.styles.css" asp-append-version="true" />
 </head>
+@using System.Text.Json
+@using ProyectoDS1.Models
+
+@{
+    UsuarioSession usuario = null;
+    var usuarioJson = Context.Session.GetString("UsuarioSesion");
+
+    if (!string.IsNullOrEmpty(usuarioJson))
+    {
+        usuario = JsonSerializer.Deserialize<UsuarioSession>(usuarioJson);
+    }
+}
+
 
 <body>
     <div class="d-flex">
         <!-- Sidebar -->
         <nav class="sidebar bg-dark text-white p-3" style="width:250px; min-height:100vh;">
-            <h4 class="mb-4"><i class="bi bi-ticket-perforated"></i> ProyectoDS1</h4>
+            <h4 class="mb-4"><i class="bi bi-ticket-perforated"></i> HELPDESK-MC</h4>
+            @if (usuario != null)
+            {
+                <div class="mb-3 p-2 bg-secondary rounded text-center">
+                    <i class="bi bi-person-fill"></i>
+                    <strong>@usuario.NombreCompleto</strong>
+                </div>
+            }
+            
             <ul class="nav flex-column">
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="Tickets" asp-action="Create">
-                        <i class="bi bi-plus-circle"></i> Nuevo Ticket
-                    </a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="Tickets" asp-action="List">
-                        <i class="bi bi-list-check"></i> Mis Tickets
-                    </a>
-                </li>
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="Usuarios" asp-action="ListUsuario">
-                        <i class="bi bi-people"></i> Usuarios
-                    </a>
-                </li>
+                @if (usuario?.IdRol == 1 || usuario?.IdRol == 2 || usuario?.IdRol == 3)
+                {
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-speedometer2"></i> Menu
+                        </a>
+                    </li>
+                }
+                @if (usuario?.IdRol == 1 || usuario?.IdRol == 2 || usuario?.IdRol == 3)
+                {
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-controller="Tickets" asp-action="Create">
+                            <i class="bi bi-plus-circle"></i> Nuevo Ticket
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-controller="Tickets" asp-action="ListTickets">
+                            <i class="bi bi-list-check"></i> Mis Tickets
+                        </a>
+                    </li>
+                }
+                @if (usuario?.IdRol == 1)
+                {
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-controller="Usuarios" asp-action="ListUsuario">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
+                    </li>
+                }
+                
             </ul>
-            <hr class="text-secondary" />
-            <a class="nav-link text-white" asp-controller="Usuarios" asp-action="Logout">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
+            @if (usuario != null)
+            {
+                <hr class="text-secondary" />
+                <a class="nav-link text-white" asp-controller="Login" asp-action="Logout">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </a>
+            }
+            
         </nav>
 
         <!-- Contenido principal -->

@@ -326,3 +326,300 @@ VALUES
 ('U0048','Noelia','Sanchez','noelia.sanchez48@mail.com','900000048','HASH123',3),
 ('U0049','Cristian','Valdez','cristian.valdez49@mail.com','900000049','HASH123',1),
 ('U0050','Milagros','Huaman','milagros.huaman50@mail.com','900000050','HASH123',2);
+
+-- ======================================================
+-- SP TICKETS
+-- ======================================================
+
+--Listar ticket
+CREATE OR ALTER PROC usp_ListarTickets
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        t.IdTicket,
+        t.Titulo,
+        t.FechaCreacion,
+
+        u.Nombre + ' ' + u.Apellido AS UsuarioCreador,
+
+        e.Nombre AS Estado,
+        p.Nombre AS Prioridad,
+        c.Nombre AS Categoria
+    FROM tb_Tickets t
+    INNER JOIN tb_Usuarios u ON t.IdUsuarioCreador = u.IdUsuario
+    INNER JOIN tb_Estados e ON t.IdEstado = e.IdEstado
+    INNER JOIN tb_Prioridades p ON t.IdPrioridad = p.IdPrioridad
+    INNER JOIN tb_Categorias c ON t.IdCategoria = c.IdCategoria
+    ORDER BY t.FechaCreacion DESC;
+END
+GO
+EXEC usp_ListarTickets
+
+
+--Buscar ticket
+CREATE OR ALTER PROC usp_BuscarTicket
+    @IdTicket INT
+AS
+BEGIN
+    SELECT 
+        t.IdTicket,
+        t.Titulo,
+        t.Descripcion,
+        t.FechaCreacion,
+        t.FechaCierre,
+        u.Nombre + ' ' + u.Apellido AS UsuarioCreador,
+        e.Nombre AS Estado,
+        p.Nombre AS Prioridad,
+        c.Nombre AS Categoria
+    FROM tb_Tickets t
+        INNER JOIN tb_Usuarios u ON t.IdUsuarioCreador = u.IdUsuario
+        INNER JOIN tb_Estados e ON t.IdEstado = e.IdEstado
+        INNER JOIN tb_Prioridades p ON t.IdPrioridad = p.IdPrioridad
+        INNER JOIN tb_Categorias c ON t.IdCategoria = c.IdCategoria
+    WHERE t.IdTicket = @IdTicket
+END
+GO
+EXEC usp_BuscarTicket 3
+
+--Crear ticket
+CREATE OR ALTER PROC usp_CrearTicket
+    @Titulo NVARCHAR(150),
+    @Descripcion NVARCHAR(MAX),
+    @IdPrioridad INT,
+    @IdCategoria INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO tb_Tickets
+    (
+        Titulo,
+        Descripcion,
+        IdUsuarioCreador,
+        IdEstado,
+        IdPrioridad,
+        IdCategoria
+    )
+    VALUES
+    (
+        @Titulo,
+        @Descripcion,
+        1,      -- Admin por defecto
+        1,      -- Estado: Abierto
+        @IdPrioridad,
+        @IdCategoria
+    );
+
+    SELECT SCOPE_IDENTITY() AS NuevoIdTicket;
+END
+GO
+
+EXEC usp_CrearTicket
+    @Titulo = 'Error al iniciar sesión',
+    @Descripcion = 'El sistema no permite ingresar con credenciales válidas',
+    @IdPrioridad = 1,
+    @IdCategoria = 1;
+
+SELECT * FROM tb_Tickets ORDER BY IdTicket DESC;
+
+
+ 
+
+--listar prioridades
+CREATE OR ALTER PROC usp_ListarPrioridades
+AS
+BEGIN
+    SELECT IdPrioridad, Nombre
+    FROM tb_Prioridades
+END
+GO
+
+--listar categorias
+CREATE OR ALTER PROC usp_ListarCategorias
+AS
+BEGIN
+    SELECT IdCategoria, Nombre
+    FROM tb_Categorias
+END
+GO
+
+--listar estados
+CREATE OR ALTER PROC usp_ListarEstados
+AS
+BEGIN
+    SELECT IdEstado, Nombre
+    FROM tb_Estados
+END
+GO
+
+EXEC usp_ListarPrioridades
+EXEC usp_ListarCategorias
+EXEC usp_ListarEstados
+
+--Actualizar ticket
+CREATE OR ALTER PROC usp_ActualizarTicket
+    @IdTicket INT,
+    @Titulo NVARCHAR(150),
+    @Descripcion NVARCHAR(MAX),
+    @IdPrioridad INT,
+    @IdCategoria INT,
+    @IdEstado INT
+AS
+BEGIN
+    UPDATE tb_Tickets
+    SET
+        Titulo = @Titulo,
+        Descripcion = @Descripcion,
+        IdPrioridad = @IdPrioridad,
+        IdCategoria = @IdCategoria,
+        IdEstado = @IdEstado
+    WHERE IdTicket = @IdTicket;
+END
+GO
+
+--Cambiar Estado
+CREATE OR ALTER PROC usp_CambiarEstadoTicket
+    @IdTicket INT,
+    @NuevoEstado INT,
+    @IdUsuario INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @EstadoActual INT;
+
+    BEGIN TRY
+
+        BEGIN TRAN;
+
+        -- Validar que el ticket existe
+        IF NOT EXISTS (SELECT 1 FROM tb_Tickets WHERE IdTicket = @IdTicket)
+        BEGIN
+            RAISERROR('El ticket no existe', 16, 1);
+            ROLLBACK TRAN;
+            RETURN;
+        END;
+
+        -- Obtener estado actual
+        SELECT @EstadoActual = IdEstado 
+        FROM tb_Tickets 
+        WHERE IdTicket = @IdTicket;
+
+        -- Validar transición (no se puede retroceder)
+        IF NOT(
+                (@EstadoActual = 1 AND @NuevoEstado IN (2,3)) OR
+                (@EstadoActual = 2 AND @NuevoEstado = 3)
+              )
+        BEGIN
+            RAISERROR('Transición no permitida', 16, 1);
+            ROLLBACK TRAN;
+            RETURN;
+        END;
+
+        -- Actualizar ticket
+        UPDATE tb_Tickets
+        SET 
+            IdEstado = @NuevoEstado,
+            FechaCierre = CASE WHEN @NuevoEstado = 3 THEN GETDATE() ELSE FechaCierre END
+        WHERE IdTicket = @IdTicket;
+
+        -- Registrar historial
+        INSERT INTO tb_HistorialTickets(IdTicket, IdUsuario, DescripcionCambio, FechaCambio)
+        VALUES
+        (
+            @IdTicket,
+            @IdUsuario,
+            CONCAT(
+                'Estado cambiado de ', 
+                (SELECT Nombre FROM tb_Estados WHERE IdEstado = @EstadoActual),
+                ' a ',
+                (SELECT Nombre FROM tb_Estados WHERE IdEstado = @NuevoEstado)
+            ),
+            GETDATE()
+        );
+
+        COMMIT TRAN;
+
+    END TRY
+    BEGIN CATCH
+
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRAN;
+
+        DECLARE @MensajeError NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @Severidad INT = ERROR_SEVERITY();
+        DECLARE @EstadoError INT = ERROR_STATE();
+
+        RAISERROR(@MensajeError, @Severidad, @EstadoError);
+
+    END CATCH
+END
+GO
+
+
+EXEC usp_CambiarEstadoTicket
+    @IdTicket = 9,
+    @NuevoEstado = 2,
+    @IdUsuario = 1;
+
+SELECT * FROM tb_Tickets WHERE IdTicket = 6;
+SELECT * FROM tb_HistorialTickets WHERE IdTicket = 3 ORDER BY FechaCambio DESC;
+
+--LISTAR HISTORIAL DE TICKET
+CREATE OR ALTER PROC usp_ListarHistorialTicket
+    @IdTicket INT
+AS
+BEGIN
+    SELECT 
+        h.FechaCambio,
+        u.Nombre AS Usuario,
+        h.DescripcionCambio
+    FROM tb_HistorialTickets h
+    INNER JOIN tb_Usuarios u ON u.IdUsuario = h.IdUsuario
+    WHERE h.IdTicket = @IdTicket
+    ORDER BY h.FechaCambio DESC;
+END
+GO
+EXEC usp_ListarHistorialTicket 6
+
+--==========================================================================
+CREATE OR ALTER PROC usp_VerificarUsuario
+    @Email NVARCHAR(150),
+    @ContrasenaHash NVARCHAR(255)
+AS
+BEGIN
+    SELECT IdUsuario , Nombre, Apellido, IdRol
+    FROM tb_Usuarios
+    WHERE Email = @Email AND ContrasenaHash = @ContrasenaHash AND Activo = 1;
+END
+GO
+
+EXEC usp_VerificarUsuario 'admin@helpdesk.local' , 'HASH_TEMPORAL'
+
+
+SELECT * FROM tb_Usuarios
+
+
+----------------------------------------------------------------------------------------
+CREATE OR ALTER PROCEDURE usp_DashboardTotales
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        SUM(CASE WHEN e.Nombre = 'Abierto' THEN 1 ELSE 0 END) AS Abiertos,
+        SUM(CASE WHEN e.Nombre = 'En proceso' THEN 1 ELSE 0 END) AS EnProceso,
+        SUM(CASE WHEN e.Nombre = 'Cerrado' THEN 1 ELSE 0 END) AS Cerrados,
+        COUNT(*) AS Total
+    FROM tb_Tickets t
+    INNER JOIN tb_Estados e ON t.IdEstado = e.IdEstado;
+END
+GO
+
+
+EXEC usp_DashboardTotales
+
+
+

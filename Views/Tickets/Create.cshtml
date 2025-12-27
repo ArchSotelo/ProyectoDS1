@@ -1,0 +1,76 @@
+﻿@model ProyectoDS1.Models.Ticket
+
+@{
+    ViewData["Title"] = "Crear Ticket";
+}
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">
+            <i class="bi bi-ticket-detailed"></i> Nuevo Ticket
+        </h4>
+    </div>
+
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Titulo" class="form-label"></label>
+                    <input asp-for="Titulo" class="form-control" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <label asp-for="Descripcion" class="form-label"></label>
+                    <textarea asp-for="Descripcion" rows="4" class="form-control"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+                <div class="col-md-6">
+                    <label asp-for="IdPrioridad" class="form-label">Prioridad</label>
+                    <select asp-for="IdPrioridad" asp-items="ViewBag.Prioridades" class="form-select">
+                        <option value="">-- Seleccione --</option>
+                    </select>
+                    <span asp-validation-for="IdPrioridad" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="IdCategoria" class="form-label">Categoría</label>
+                    <select asp-for="IdCategoria" asp-items="ViewBag.Categorias" class="form-select">
+                        <option value="">-- Seleccione --</option>
+                    </select>
+                    <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Guardar Ticket
+                </button>
+
+                <button type="reset" class="btn btn-secondary">
+                    <i class="bi bi-trash"></i> Limpiar
+                </button>
+
+                <a asp-action="ListTickets" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left-circle"></i> Cancelar
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

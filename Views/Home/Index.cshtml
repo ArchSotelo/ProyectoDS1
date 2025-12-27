@@ -1,88 +1,115 @@
-﻿@{
+﻿@using System.Text.Json
+@using ProyectoDS1.Models
+
+@{
     ViewData["Title"] = "Dashboard de Tickets";
+    var bienvenida = TempData["Bienvenida"] as string;
+    UsuarioSession usuario = null;
+    var usuarioJson = Context.Session.GetString("UsuarioSesion");
+
+    if (!string.IsNullOrEmpty(usuarioJson))
+    {
+        usuario = JsonSerializer.Deserialize<UsuarioSession>(usuarioJson);
+    }
 }
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <div class="content">
-    <h2 class="mb-4 text-primary"><i class="bi bi-speedometer2"></i> Dashboard de Tickets</h2>
+    <h2 class="mb-4 text-primary"><i class="bi bi-speedometer2"></i>Tickets</h2>
 
     <!-- Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted">Abiertos</h6>
-                    <h2 class="text-danger fw-bold">12</h2>
+    @if (usuario?.IdRol == 1 || usuario?.IdRol == 2 )
+    {
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <h6>Abiertos</h6>
+                    <h2 class="text-danger">@Model.Abiertos</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <h6>En Proceso</h6>
+                    <h2 class="text-warning">@Model.EnProceso</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <h6>Cerrados</h6>
+                    <h2 class="text-success">@Model.Cerrados</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <h6>Total</h6>
+                    <h2 class="text-primary">@Model.Total</h2>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted">En Proceso</h6>
-                    <h2 class="text-warning fw-bold">8</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted">Cerrados</h6>
-                    <h2 class="text-success fw-bold">25</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center shadow-sm">
-                <div class="card-body">
-                    <h6 class="text-muted">Total</h6>
-                    <h2 class="text-primary fw-bold">45</h2>
-                </div>
-            </div>
-        </div>
-    </div>
+    }
+    
 
     <!-- Tabla -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            Tickets Recientes
+    @if (usuario?.IdRol == 1 || usuario?.IdRol == 2 || usuario?.IdRol == 3)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                Tickets Recientes
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Estado</th>
+                            <th>Prioridad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>101</td>
+                            <td>Error en login</td>
+                            <td><span class="badge bg-danger">Abierto</span></td>
+                            <td>Alta</td>
+                            <td>22/12/2025</td>
+                        </tr>
+                        <tr>
+                            <td>102</td>
+                            <td>Solicitud de acceso</td>
+                            <td><span class="badge bg-warning">En Proceso</span></td>
+                            <td>Media</td>
+                            <td>21/12/2025</td>
+                        </tr>
+                        <tr>
+                            <td>103</td>
+                            <td>Actualización completada</td>
+                            <td><span class="badge bg-success">Cerrado</span></td>
+                            <td>Baja</td>
+                            <td>20/12/2025</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Título</th>
-                        <th>Estado</th>
-                        <th>Prioridad</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>101</td>
-                        <td>Error en login</td>
-                        <td><span class="badge bg-danger">Abierto</span></td>
-                        <td>Alta</td>
-                        <td>22/12/2025</td>
-                    </tr>
-                    <tr>
-                        <td>102</td>
-                        <td>Solicitud de acceso</td>
-                        <td><span class="badge bg-warning">En Proceso</span></td>
-                        <td>Media</td>
-                        <td>21/12/2025</td>
-                    </tr>
-                    <tr>
-                        <td>103</td>
-                        <td>Actualización completada</td>
-                        <td><span class="badge bg-success">Cerrado</span></td>
-                        <td>Baja</td>
-                        <td>20/12/2025</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    }
+   
 </div>
+
+@if (!string.IsNullOrEmpty(bienvenida))
+{
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                title: 'Bienvenido',
+                text: '@bienvenida',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    </script>
+}
+
+

@@ -1,0 +1,101 @@
+﻿@model ProyectoDS1.Models.Ticket
+
+@{
+    ViewData["Title"] = "Detalle del Ticket";
+}
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-card-text"></i> Detalle del Ticket
+        </h5>
+
+        <a asp-action="ListTickets" class="btn btn-light btn-sm">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card-body">
+        <div class="row mb-3">
+
+            <div class="col-md-6">
+                <p><strong>Título:</strong> @Model.Titulo</p>
+                <p><strong>escripción:</strong><br /> @Model.Descripcion</p>
+                <p><strong>Usuario creador:</strong> @Model.UsuarioCreador</p>
+                <p><strong>Fecha creación:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+
+            <div class="col-md-6">
+                <p>
+                    <strong>Prioridad:</strong>
+                    <span class="badge bg-warning text-dark">@Model.Prioridad</span>
+                </p>
+
+                <p>
+                    <strong>Categoría:</strong>
+                    <span class="badge bg-info text-dark">@Model.Categoria</span>
+                </p>
+
+                <p>
+                    <strong>Estado:</strong>
+                    <span class="badge bg-success">@Model.Estado</span>
+                </p>
+
+                @if (Model.FechaCierre != null)
+                {
+                    <p><strong>Fecha cierre:</strong> @Model.FechaCierre?.ToString("dd/MM/yyyy HH:mm")</p>
+                }
+            </div>
+
+        </div>
+
+        <div class="mt-3">
+
+            <a asp-action="Edit" asp-route-id="@Model.IdTicket" class="btn btn-success me-2">
+                <i class="bi bi-pencil-square"></i> Editar Ticket
+            </a>
+
+            <form asp-action="CambiarEstado" method="post" class="d-inline">
+                <input type="hidden" name="IdTicket" value="@Model.IdTicket" />
+                <input type="hidden" name="NuevoEstado" value="2" />
+                <button type="submit" class="btn btn-warning">En proceso</button>
+            </form>
+
+            <form asp-action="CambiarEstado" method="post" class="d-inline">
+                <input type="hidden" name="IdTicket" value="@Model.IdTicket" />
+                <input type="hidden" name="NuevoEstado" value="3" />
+                <button type="submit" class="btn btn-danger">Cerrar ticket</button>
+            </form>
+
+
+            <a asp-action="ListTickets" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left-circle"></i> Retornar
+            </a>
+
+        </div>
+
+        <hr />
+
+        <h5><i class="bi bi-clock-history"></i> Historial del ticket</h5>
+
+        <table class="table table-striped mt-3">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Cambio</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.Historial)
+                {
+                    <tr>
+                        <td>@item.FechaCambio.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.Usuario</td>
+                        <td>@item.DescripcionCambio</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
